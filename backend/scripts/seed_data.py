@@ -29,17 +29,32 @@ def simulate_burst(component_id, count=100):
     for _ in range(count):
         send_signal(component_id)
 
+def simulate_outage_scenario():
+    print("\n--- STARTING COMPLEX FAILURE SCENARIO ---")
+    
+    # 1. RDBMS Primary goes down (P0 Incident)
+    print("Step 1: RDBMS Primary reporting Critical Latency spikes...")
+    for _ in range(20):
+        send_signal("RDBMS_PRIMARY")
+    
+    time.sleep(2)
+    
+    # 2. MCP Host starts failing due to DB dependency (Cascading failure)
+    print("Step 2: MCP_HOST_01 failing due to downstream dependency...")
+    for _ in range(50):
+        send_signal("MCP_HOST_01")
+        
+    print("--- SCENARIO SEEDED ---")
+
 if __name__ == "__main__":
     print("Starting data seeding...")
-    # 1. Send some random signals
-    for _ in range(5):
+    
+    # Simple random signals
+    for _ in range(3):
         send_signal(random.choice(COMPONENTS))
-        time.sleep(1)
+        time.sleep(0.5)
 
-    # 2. Simulate a burst to test debouncing (should only create 1 incident)
-    simulate_burst("CACHE_CLUSTER_01", 100)
+    # Complex scenario requested by assignment
+    simulate_outage_scenario()
     
-    # 3. Simulate another burst for a different component
-    simulate_burst("RDBMS_PRIMARY", 50)
-    
-    print("Done.")
+    print("\nDone. Check your dashboard for the 'RDBMS_PRIMARY' and 'MCP_HOST_01' incidents.")
